@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<title>Initiation à l'assembleur</title>
+<style type="text/css" media="all">
+#pied {
+    font-size: 80%;    
+    text-align: right;
+    font-style: italic;
+}
+
+.toc { 
+    font-size: 80%;
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    width: 15em;
+    background-color: #eee;
+    margin: 0px;
+    padding: 0px 
+    -moz-border-radius: 0.6em;
+    border-radius: 0.6em;
+}      
+
+.toc ul {
+    list-style-type: none;
+    padding: 0em 1em;
+}
+
+.toc ul ul {
+    font-size: 90%;
+}
+
+#tour {
+    display: inline-block;
+    text-align: justify;
+    width: 60em;
+    padding: 2em;
+}
+
+body {
+	font: normal 12pt sans-serif;
+    line-height: 1.3em;
+	text-align: left;
+	margin: 3em;
+	padding: 2em;
+}
+
+#header h2 {
+    font-weight: normal;
+    font-style: italic;
+}
+
+#body h2 {
+    margin-top: 2em;
+    padding-bottom: 0.25em;
+}
+
+
+#body h3 {
+    margin-top: 2em;
+    padding-bottom: 0.25em;
+}
+
+#body h1 {
+    border-bottom: 1px solid black;
+    padding-bottom: 0.25em;
+	margin-top: 2em;
+}
+
+a {
+    color: #ee7700;
+    font-weight: bold;
+	text-decoration: none;
+}
+
+.toc a {
+    color: black;
+}
+
+blockquote {
+	margin-left: 5em;
+	margin-top:2em;
+	font-style:italic;
+}
+
+hr {
+	margin-top:3em;
+}
+
+pre {
+    padding: 1em;
+    background-color: #fce4cc;
+    -moz-border-radius: 0.6em;
+    border-radius: 0.6em;
+}
+</style>
+<style type="text/css" media="print">
+body {
+    font-size: 10pt
+}
+.toc, #pied {
+    display: none;
+}
+</style>
+</head>
+<body>
+<div id="tour">
+<div id="header">
+<h1>Initiation à l'assembleur</h1>
+<h2>Mathieu Liedloff – Nicolas Ollinger</h2>
+<h3>31 mai 2017</h3>
+</div>
+<div id="corps">
+<div class="body" id="body">
+	<blockquote>
+		<blockquote>
+			<blockquote>
+				<blockquote>
+				<i>He who hasn't hacked assembly language as a youth has no heart. He who does so as an adult has no brain.</i> — John Moore
+				</blockquote>
+			</blockquote>
+		</blockquote>
+	</blockquote>
+
+<h2>Jouons avec les nombres</h2>
+
+<h3>Ex1. Prendre des mesures</h3>
+
+<p>
+En assembleur, une expression arithmétique doit être décomposée en une succession d'opérations élémentaires en utilisant les registres et la mémoire pour stocker les valeurs intermédiaires. Pour cela, vous aurez besoin des instructions <code>MOV</code>, <code>ADD</code>, <code>SUB</code>, <code>SUB</code>, <code>DIV</code>, <code>MOD</code> et bien sûr <code>HALT</code>. Voici un exemple de programme qui calcule dans <code>CL</code> la moyenne de <code>AL</code> et <code>BL</code>  (c'est-à-dire <code>CL := (AL+BL)/2</code> en pseudo-code) :
+</p>
+
+<pre>
+MOV AL, 3  ; AL vaut 3
+MOV BL, 6B ; BL vaut 107
+MOV CL, 0
+ADD CL, AL
+ADD CL, BL
+DIV CL, 2
+HALT
+</pre>
+
+<p>
+➤ Écrire un programme qui calcule dans <code>DL</code> le périmètre d'un rectangle dont la longueur des côtés est donnée dans <code>AL</code> et <code>BL</code>.
+</p>
+
+<h3>Ex2. Trouver le plus grand</h3>
+
+<p>
+En assembleur, les instructions conditionnelles se décomposent en tests et en sauts conditionnels. Pour cela, vous aurez besoin des instructions <code>CMP</code>, <code>JMP</code>, <code>JS</code>, <code>JNS</code>, <code>JZ</code> et <code>JNZ</code>. 
+Voici un exemple de programme qui calcule dans <code>BL</code> la valeur absolue de la valeur entière stockée dans <code>AL</code> (c'est-à-dire <code>if AL &lt; 0 then BL := -AL else BL := AL</code> en pseudo-code) :
+</p>
+
+<pre>
+  MOV AL, FB ; AL vaut -5
+  MOV BL, 0
+  CMP AL, 0
+  JNS positif
+  SUB BL, AL
+  JMP fin
+positif:
+  ADD BL, AL
+fin:
+  HALT
+</pre>
+
+<p>
+➤ Écrire un programme qui calcule dans <code>DL</code> le maximum de 3 entiers initalement placés dans <code>AL</code>, <code>BL</code> et <code>CL</code>.
+</p>
+
+<h3>Ex3. À la manière d'Euclide</h3>
+
+<p>
+En assembleur, les boucles sont aussi organisées en utilisant des tests et des sauts. Voici un programme qui calcule dans <code>BL</code> la partie entière du logarithme en base 2 de la valeur positive contenue dans <code>AL</code> :
+</p>
+
+<pre>
+  MOV AL, 42 ; AL vaut 66
+  MOV BL, 0
+boucle:
+  CMP AL, 0
+  JZ fin
+  DIV AL, 2
+  INC BL
+  JMP boucle
+fin:
+  HALT
+</pre>
+
+<p>
+➤ Écrire un programme qui calcule dans <code>AL</code> le pgcd de deux entiers initialement donnés dans <code>AL</code> et <code>BL</code>.
+</p>
+
+<h2>Les chaînes se déchainent</h2>
+
+<h3>Ex4. Qrpbqre qrf zrffntrf frpergf</h3>
+
+<p>
+À l'aide des directives assembleur <code>ORG</code> et <code>DB</code>, il est possible de placer des valeurs n'importe où en mémoire au lancement du programme. Une chaîne de caractères n'est que la suite des codes ASCII de ses caractères terminée par le code de caractère <code>0</code>.
+Voici un programme qui calcule dans <code>BL</code> la longueur d'une chaîne de caractères dont l'adresse est initialement donnée dans <code>AL</code>:
+</p>
+
+<pre>
+  MOV AL, 80
+  MOV BL, 0
+boucle:
+  MOV CL, [AL]
+  CMP CL, 0
+  JZ fin
+  INC BL
+  INC AL
+  JMP boucle
+fin:
+  HALT
+
+  ORG 80
+  DB "the cake is a lie."
+  DB 0
+</pre>
+
+<p>
+Dans la transformation ROT13, chaque lettre d'une chaîne de caractères est décalée de 13 positions dans l'alphabet. Les autres caractères sont laissés intacts.
+</p>
+<p>
+➤ Écrire un programme qui calcule la transformation ROT13 d'une chaîne de caractères dont l'adresse est initialement donnée dans <code>AL</code> en enrichissant le squelette suivant :
+</p>
+
+<pre>
+  MOV AL, C0
+boucle:
+
+  ; (...) écrire cette portion
+
+  JMP boucle
+fin:
+  HALT
+
+  ORG C0
+  DB "EBG26 vf whfg   yvxr EBG13 ohg  gjvpr nf frpher!uggc://ebg26.bet"
+</pre>
+
+<h3>Ex5. Reconnaître les mots bien parenthésés ((())())()</h3>
+
+<p>
+Un mot bien parenthésé est une chaîne de caractères contenant autant de parenthèses ouvrantes que de parenthèses fermantes et tel que tout préfixe de la chaîne contient au moins autant de parenthèses ouvrantes que de parenthèses fermantes.
+</p>
+<p>
+➤ Écrire un programme qui teste si un mot écrit à partir de l'adresse <code>C0</code> est bien parenthésé et écrit le résultat (<code>OUI</code> ou <code>NON</code>) à l'adresse <code>F0</code> en enrichissant le squelette suivant :
+</p>
+
+<pre>
+  MOV AL, 0 ; AL compte le nombre de '(' lus - nombre de ')' lus
+  MOV BL, C0 ; BL pointe sur le prochain caractère à lire
+boucle:
+
+  ; (...) écrire cette portion
+
+theend:
+  HALT
+
+ORG A0
+DB "OUI"
+
+ORG B0
+DB "NON"
+
+ORG C0
+DB "(()()(())"
+</pre>
+
+<h2>Des appels et des piles</h2>
+
+<h3>Ex6. Suite de Fibonacci</h3>
+
+<p>
+En assembleur, les fonctions récursives et en général les procédures réutilisables sont mises en œuvre en utilisant un espace mémoire particulier organisé sous forme d'une pile. Pour manipuler la pile vous aurez besoin des instructions <code>PUSH</code>, <code>POP</code>, <code>CALL</code> et <code>RET</code>. Voici un programme qui calcule dans <code>BL</code> la factorielle de la valeur donnée dans <code>AL</code> :
+</p>
+
+<pre>
+  MOV AL, 5
+  CALL 60
+  HALT
+
+  ORG 60
+  CMP AL, 1
+  JNS rec
+  MOV BL, 1
+  RET
+rec:
+  PUSH AL
+  DEC AL
+  CALL 60
+  POP AL
+  MUL BL, AL
+  RET
+</pre>
+
+<p>
+➤ Écrire un programme qui calcule récursivement dans <code>BL</code> le nième terme de la suite de Fibonacci (donnée par <code>fib(0)=fib(1)=1</code> et <code>fib(n+2)=fib(n)+fib(n+1)</code> sinon) dont l'indice est donné dans <code>AL</code>.
+</p>
+
+<h2>Et pour quelques dollars de plus</h2>
+
+<p>
+Vous pouvez maintenant comprendre le fonctionnement du programme ci-dessous:
+</p>
+
+<pre>
+;; call HANOI(4,0,1,2)
+  MOV AL,4
+  MOV BL,10
+  MOV CL,11
+  MOV DL,12
+  CALL 20
+  HALT
+
+;; variables
+
+  ORG 10
+  DB B0
+  DB F5
+  DB FA
+
+;; HANOI :
+;; INPUT : AL n
+;;         BL pile orig
+;;         CL pile pivot
+;;         DL pile dest
+  ORG 20
+Hanoi:
+  DEC AL
+  CMP AL,0
+  JZ NoCall
+  PUSH AL
+  PUSH CL
+  PUSH DL
+  PUSH BL
+  XOR CL,DL
+  XOR DL,CL
+  XOR CL,DL
+  CALL 20
+  POP BL
+  POP CL
+  PUSH CL
+  PUSH BL
+  CALL 54
+  POP CL
+  POP DL
+  POP BL
+  POP AL
+  JMP Hanoi
+NoCall:
+  MOV CL,0
+  ADD CL,DL
+;; MOVE : 
+;; INPUT : BL pile orig
+;;         CL pile dest
+  ORG 54
+Move:
+  MOV AL, [BL]
+  ADD AL, 10
+  MOV [BL], AL
+  MOV BL, [CL]
+  SUB BL, 10
+  MOV [CL], BL
+  ADD BL, 10
+  MOV CL, 5
+Loop:
+  MOV DL, [AL]
+  MOV [BL], DL
+  MOV [AL], CL
+  INC AL
+  INC BL
+  DEC CL
+  CMP CL, 0
+  JNZ Loop
+  RET
+
+;   0 
+;  (1)
+; [(2)]
+; ((3))
+
+  ORG C2
+  DB 30
+  ORG D1
+  DB 28
+  DB 31
+  DB 29
+  ORG E0
+  DB 5B
+  DB 28
+  DB 32
+  DB 29
+  DB 5D
+  ORG F0
+  DB 28
+  DB 28
+  DB 33
+  DB 29
+  DB 29
+</pre>
+
+</div>
+<!-- xhtml code generated by txt2tags 2.6. (http://txt2tags.org) -->
+<!-- cmdline: txt2tags initasm.t2t -->
+</div>
+<div id="pied">
+Dernière modification le 30 May 2017
+</div>
+</div>
+</body>
+</html>
+
